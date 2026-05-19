@@ -1,0 +1,147 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+using namespace std;
+ 
+// ─── Constants ───────────────────────────
+const int MAX_ITEMS  = 20;
+const int MAX_ORDERS = 50;
+ 
+// ─── Structures ──────────────────────────
+struct MenuItem {
+    int    id;
+    string name;
+    double price;
+};
+ 
+struct Order {
+    int    orderId;
+    string customerName;
+    string itemName;
+    int    quantity;
+    double total;
+};
+ 
+// ─── Global Data ─────────────────────────
+MenuItem menu[MAX_ITEMS];
+int      menuCount  = 0;
+int      nextMenuId = 1;
+ 
+Order orders[MAX_ORDERS];
+int   orderCount  = 0;
+int   nextOrderId = 1;
+ 
+// ─── Functions ───────────────────────────
+ 
+void addItem() {
+    if (menuCount >= MAX_ITEMS) {
+        cout << "Menu is full!\n";
+        return;
+    }
+    menu[menuCount].id = nextMenuId++;
+    cout << "Item name  : ";
+    cin.ignore();
+    getline(cin, menu[menuCount].name);
+    cout << "Price ($)  : ";
+    cin >> menu[menuCount].price;
+    menuCount++;
+    cout << "Item added successfully!\n";
+}
+ 
+void showMenu() {
+    if (menuCount == 0) {
+        cout << "No items in menu.\n";
+        return;
+    }
+    cout << "\n--- MENU ---\n";
+    cout << left << setw(5) << "ID" << setw(20) << "Name" << "Price\n";
+    cout << string(35, '-') << "\n";
+    for (int i = 0; i < menuCount; i++) {
+        cout << left << setw(5) << menu[i].id
+             << setw(20) << menu[i].name
+             << "$" << fixed << setprecision(2) << menu[i].price << "\n";
+    }
+}
+ 
+void takeOrder() {
+    if (menuCount == 0) {
+        cout << "Menu is empty!\n";
+        return;
+    }
+ 
+    showMenu();
+ 
+    cout << "\nCustomer name : ";
+    cin.ignore();
+    getline(cin, orders[orderCount].customerName);
+ 
+    cout << "Enter item ID : ";
+    int id; cin >> id;
+ 
+    // Find item
+    int found = -1;
+    for (int i = 0; i < menuCount; i++) {
+        if (menu[i].id == id) { found = i; break; }
+    }
+ 
+    if (found == -1) {
+        cout << "Item not found!\n";
+        return;
+    }
+ 
+    cout << "Quantity      : ";
+    int qty; cin >> qty;
+ 
+    orders[orderCount].orderId      = nextOrderId++;
+    orders[orderCount].itemName     = menu[found].name;
+    orders[orderCount].quantity     = qty;
+    orders[orderCount].total        = menu[found].price * qty;
+    orderCount++;
+ 
+    cout << "\n--- RECEIPT ---\n";
+    cout << "Customer : " << orders[orderCount-1].customerName << "\n";
+    cout << "Item     : " << orders[orderCount-1].itemName << " x" << qty << "\n";
+    cout << "Total    : $" << fixed << setprecision(2) << orders[orderCount-1].total << "\n";
+}
+ 
+void showOrders() {
+    if (orderCount == 0) {
+        cout << "No orders yet.\n";
+        return;
+    }
+    cout << "\n--- ORDER HISTORY ---\n";
+    for (int i = 0; i < orderCount; i++) {
+        cout << "#" << orders[i].orderId
+             << " | " << orders[i].customerName
+             << " | " << orders[i].itemName
+             << " x" << orders[i].quantity
+             << " | $" << fixed << setprecision(2) << orders[i].total << "\n";
+    }
+}
+ 
+// ─── Main ────────────────────────────────
+int main() {
+    cout << "=== Restaurant Management System ===\n";
+ 
+    int choice;
+    do {
+        cout << "\n1. Add menu item\n"
+             << "2. Show menu\n"
+             << "3. Take order\n"
+             << "4. Show orders\n"
+             << "0. Exit\n"
+             << "Choice: ";
+        cin >> choice;
+ 
+        switch (choice) {
+            case 1: addItem();    break;
+            case 2: showMenu();   break;
+            case 3: takeOrder();  break;
+            case 4: showOrders(); break;
+            case 0: cout << "Goodbye!\n"; break;
+            default: cout << "Invalid choice!\n";
+        }
+    } while (choice != 0);
+ 
+    return 0;
+}
